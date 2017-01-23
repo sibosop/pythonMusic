@@ -1,18 +1,19 @@
 #!/usr/bin/python
-import time
+
 from MidiScheduler import MidiScheduler, Measure as Me, Loop as Lo
 from Event import CCEvent as cc
 import sys
-
+MidiScheduler.loopSize=4
+MidiScheduler.measureSize=96
 ms = MidiScheduler('IAC Driver IAC Bus 1')
-off = 0
-on = 127
+off = ms.off
+on = ms.on
 
 class Tr(object):
   unused,bd3,snrd,midd,pink,bd1,clp,pluckb,tink,bd1Stretch,revBd3,pluckwah,bell,pluckbell,pluckbell1,pluckbell2,pluckbell3,beattone1,beattone2=range(19)
   
 
-togStartStop = cc(0,on)
+
 ms.addEvent(Lo("1:4:1:0"),cc(Tr.pink,off))
 ms.addEvent(Lo("3:1:1:0"),cc(Tr.bd1Stretch,off))
 ms.addEvent(Lo("5:1:1:0"),cc(Tr.revBd3,off))
@@ -82,31 +83,9 @@ ms.addEvent(Lo("51:4:4:20"),cc(Tr.bd3,on))
 ms.addEvent(Lo("53:4:1:0"),cc(Tr.pluckb,on))
 ms.addEvent(Lo("54:3:2:0"),cc(Tr.bd1Stretch,on))
 
+ms.addEvent(Lo("55:1:1:1"),ms.togStartStop)
+
+ms.run()  
 
 
-
-
-
-
-ms.addEvent(Lo("55:1:1:1"),togStartStop)
-
-
-
-
-
-  
-
-muteAll = cc(127,on)
-reset=cc(126,on)
-
-ms.fire(reset)
-ms.fire(muteAll)
-ms.fire(togStartStop)
-try:
-  while ms.loop():
-    time.sleep(0.3)
-    
-except:
-  print("error:", sys.exc_info()[0])
-  ms.fire(togStartStop)
 

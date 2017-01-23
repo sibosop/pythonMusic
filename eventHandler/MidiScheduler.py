@@ -2,8 +2,13 @@
 import mido
 import Singleton
 from threading import Thread,Lock
+from Event import CCEvent as cc
 import sys
-import EvGlobal
+
+import time
+loopSize=4
+measureSize = 96
+
 class Loop(object):
   loop=0
   measure=0
@@ -19,19 +24,18 @@ class Loop(object):
       self.beat = int(vals[2])-1
       self.clock = int(vals[3])
       print "Loop:"+str(self.loop)+" measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
-      if self.measure >= EvGlobal.loopSize:
+      if self.measure >= loopSize:
         raise Exception('bad measure param:'+str(self.measure))
     except:
       print("Unexpected error:", sys.exc_info()[0])
       raise 
       
   def count(self):
-    rval = (self.loop*(EvGlobal.loopSize*EvGlobal.measureSize))+(self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
+    rval = (self.loop*(loopSize*measureSize))+(self.measure*measureSize) + (self.beat*24) + self.clock
     print "measure count:"+str(rval)
     return rval
     
 class Measure(object):
-  measureSize = 96
   measure=0
   beat = 0
   clock = 0
@@ -49,14 +53,22 @@ class Measure(object):
       raise 
       
   def count(self):
-    rval = (self.measure*self.measureSize) + (self.beat*24) + self.clock
+    rval = (self.measure*measureSize) + (self.beat*24) + self.clock
     print "measure count:"+str(rval)
     return rval
     
 class MidiScheduler(object):
   __metaclass__ = Singleton.Singleton
+  
   def __init__(self,port):
     mido.set_backend('mido.backends.rtmidi')
+    self.on=127
+    self.off=0
+    self.togStartStop = cc(0,self.on)
+    self.muteAll = cc(127,self.on)
+    self.reset=cc(126,self.on)
+    
+    self.measureSize = 96
     self.midiIn = mido.open_input(port,callback=self.eventHandler)
     self.midiOut = mido.open_output(port)
     self.running=False 
@@ -152,4 +164,15 @@ class MidiScheduler(object):
     else:
       print 'creating event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp] = [event]
+      
+  def run(self):
+    self.fire(self.reset)
+    self.fire(self.muteAll)
+    self.fire(self.togStartStop)
+    try:
+      while self.loop():
+        time.sleep(0.3)
     
+    except:
+      print("error:", sys.exc_info()[0])
+      self.fire(self.togStartStop)
