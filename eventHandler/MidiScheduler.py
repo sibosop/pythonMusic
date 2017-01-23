@@ -2,7 +2,57 @@
 import mido
 import Singleton
 from threading import Thread,Lock
-
+import sys
+import EvGlobal
+class Loop(object):
+  loop=0
+  measure=0
+  beat = 0
+  clock = 0
+  def __init__(self,spec):
+    try:
+      vals = spec.split(":")
+      if len(vals) != 4:
+        raise Exception('bad parameter')
+      self.loop = int(vals[0])-1
+      self.measure = int(vals[1])-1
+      self.beat = int(vals[2])-1
+      self.clock = int(vals[3])
+      print "Loop:"+str(self.loop)+" measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
+      if self.measure >= EvGlobal.loopSize:
+        raise Exception('bad measure param:'+str(self.measure))
+    except:
+      print("Unexpected error:", sys.exc_info()[0])
+      raise 
+      
+  def count(self):
+    rval = (self.loop*(EvGlobal.loopSize*EvGlobal.measureSize))+(self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
+    print "measure count:"+str(rval)
+    return rval
+    
+class Measure(object):
+  measureSize = 96
+  measure=0
+  beat = 0
+  clock = 0
+  def __init__(self,spec):
+    try:
+      vals = spec.split(":")
+      if len(vals) != 3:
+        raise Exception('bad parameter')
+      self.measure = int(vals[0])-1
+      self.beat = int(vals[1])-1
+      self.clock = int(vals[2])
+      print "measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
+    except:
+      print("Unexpected error:", sys.exc_info()[0])
+      raise 
+      
+  def count(self):
+    rval = (self.measure*self.measureSize) + (self.beat*24) + self.clock
+    print "measure count:"+str(rval)
+    return rval
+    
 class MidiScheduler(object):
   __metaclass__ = Singleton.Singleton
   def __init__(self,port):
@@ -86,12 +136,20 @@ class MidiScheduler(object):
         print "clocks stopped"
         self.first = False
         self.realStart = False
+        return False
+    return True
         
   def addEvent(self,cnt,event):
-    if self.eventList.has_key(cnt):
-      print 'adding event ' + str(event) + ' at ' + str(cnt)
-      self.eventList[cnt].append(event)
+    tmp = 0
+    print "cnt type:"+cnt.__class__.__name__
+    if cnt.__class__.__name__ == 'int':
+      tmp = cnt
     else:
-      print 'creating event ' + str(event) + ' at ' + str(cnt)
-      self.eventList[cnt] = [event]
+      tmp = cnt.count()
+    if self.eventList.has_key(tmp):
+      print 'adding event ' + str(event) + ' at ' + str(tmp)
+      self.eventList[tmp].append(event)
+    else:
+      print 'creating event ' + str(event) + ' at ' + str(tmp)
+      self.eventList[tmp] = [event]
     
