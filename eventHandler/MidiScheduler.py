@@ -6,8 +6,8 @@ from Event import CCEvent as cc
 import sys
 
 import time
-loopSize=4
-measureSize = 96
+import EvGlobal
+
 
 class Loop(object):
   loop=0
@@ -24,14 +24,16 @@ class Loop(object):
       self.beat = int(vals[2])-1
       self.clock = int(vals[3])
       print "Loop:"+str(self.loop)+" measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
-      if self.measure >= loopSize:
+      if self.loop < 0 or self.measure < 0 or self.beat < 0:
+        raise Exception("negative counts")
+      if self.measure >= EvGlobal.loopSize:
         raise Exception('bad measure param:'+str(self.measure))
     except:
       print("Unexpected error:", sys.exc_info()[0])
       raise 
       
   def count(self):
-    rval = (self.loop*(loopSize*measureSize))+(self.measure*measureSize) + (self.beat*24) + self.clock
+    rval = (self.loop*(EvGlobal.loopSize*EvGlobal.measureSize))+(self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
     print "measure count:"+str(rval)
     return rval
     
@@ -48,12 +50,14 @@ class Measure(object):
       self.beat = int(vals[1])-1
       self.clock = int(vals[2])
       print "measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
+      if self.measure < 0 or self.beat < 0:
+        raise Exception("negative counts")
     except:
       print("Unexpected error:", sys.exc_info()[0])
       raise 
       
   def count(self):
-    rval = (self.measure*measureSize) + (self.beat*24) + self.clock
+    rval = (self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
     print "measure count:"+str(rval)
     return rval
     
@@ -73,6 +77,7 @@ class MidiScheduler(object):
     self.midiOut = mido.open_output(port)
     self.running=False 
     self.first=False
+    self.ignoreFlag = False
     self.count=0
     self.realStart=False
     self.messages = {
@@ -89,9 +94,10 @@ class MidiScheduler(object):
   def clock(self,msg):
     if self.running == False:
       print "clock while not running"
-    if self.eventList.has_key(self.count):
+    if self.ignoreFlag is False and self.eventList.has_key(self.count):
       for e in self.eventList[self.count]:
-        e.fire(self.midiOut) 
+        e.fire(self) 
+    self.ignoreFlag = False
     self.count += 1
     #self.running = True
     self.first=True
@@ -101,6 +107,7 @@ class MidiScheduler(object):
     print 'stop:'+str(msg)
     print "count:" + str(self.count)
     self.running = False
+    self.ignoreFlag = True
     self.count = self.count - 1
   
   def start(self,msg):
@@ -137,7 +144,7 @@ class MidiScheduler(object):
     return
 
   def fire(self,ev):
-    ev.fire(self.midiOut)
+    ev.fire(self)
 
   def eventHandler(self,msg):
     self.messages[msg.type](msg)
