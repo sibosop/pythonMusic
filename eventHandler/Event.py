@@ -30,7 +30,7 @@ class EventList(object):
       print "first is True"
       self.first = False
       self.base = ms.count
-      offset = self.list[0][0].count()
+      offset = ms.getCount(self.list[0][0])
       print "offset:"+str(offset)+" base:"+str(self.base)
       if (self.base+offset) != ms.count:
         ms.addEvent(self.base+offset,self)

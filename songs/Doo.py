@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
-from MidiScheduler import MidiScheduler, Measure as Me, Loop as Lo
+from MidiScheduler import MidiScheduler 
+from Measure import Measure as Me
+from Loop import Loop as Lo
 from Event import CCEvent as cc, EventList as el
 import sys
+
 ms = MidiScheduler('IAC Driver IAC Bus 1')
 off = ms.off
 on = ms.on

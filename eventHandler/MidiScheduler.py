@@ -6,68 +6,21 @@ from Event import CCEvent as cc
 import sys
 
 import time
-import EvGlobal
+import Loop
+import Measure
 
+measureSize = 96
+loopSize = 4
 
-class Loop(object):
-  loop=0
-  measure=0
-  beat = 0
-  clock = 0
-  def __init__(self,spec):
-    try:
-      vals = spec.split(":")
-      if len(vals) != 4:
-        raise Exception('bad parameter')
-      self.loop = int(vals[0])-1
-      self.measure = int(vals[1])-1
-      self.beat = int(vals[2])-1
-      self.clock = int(vals[3])
-      print "Loop:"+str(self.loop)+" measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
-      if self.loop < 0 or self.measure < 0 or self.beat < 0:
-        raise Exception("negative counts")
-      if self.measure >= EvGlobal.loopSize:
-        raise Exception('bad measure param:'+str(self.measure))
-    except:
-      print("Unexpected error:", sys.exc_info()[0])
-      raise 
-      
-  def count(self):
-    rval = (self.loop*(EvGlobal.loopSize*EvGlobal.measureSize))+(self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
-    print "measure count:"+str(rval)
-    return rval
-    
-class Measure(object):
-  measure=0
-  beat = 0
-  clock = 0
-  def __init__(self,spec):
-    try:
-      vals = spec.split(":")
-      if len(vals) != 3:
-        raise Exception('bad parameter')
-      self.measure = int(vals[0])-1
-      self.beat = int(vals[1])-1
-      self.clock = int(vals[2])
-      print "measure:"+str(self.measure)+" beat:"+str(self.beat)+" clock"+str(self.clock)
-      if self.measure < 0 or self.beat < 0:
-        raise Exception("negative counts")
-    except:
-      print("Unexpected error:", sys.exc_info()[0])
-      raise 
-      
-  def count(self):
-    rval = (self.measure*EvGlobal.measureSize) + (self.beat*24) + self.clock
-    print "measure count:"+str(rval)
-    return rval
-    
 class MidiScheduler(object):
   __metaclass__ = Singleton.Singleton
+  
   
   def __init__(self,port):
     mido.set_backend('mido.backends.rtmidi')
     self.on=127
     self.off=0
+    
     self.togStartStop = cc(0,self.on)
     self.muteAll = cc(127,self.on)
     self.reset=cc(126,self.on)
@@ -89,6 +42,7 @@ class MidiScheduler(object):
       ,'control_change': self.control_change
       ,'pitchwheel' : self.pitchwheel
     }
+    
     self.eventList = {}
     
   def clock(self,msg):
@@ -159,12 +113,7 @@ class MidiScheduler(object):
     return True
         
   def addEvent(self,cnt,event):
-    tmp = 0
-    print "cnt type:"+cnt.__class__.__name__
-    if cnt.__class__.__name__ == 'int':
-      tmp = cnt
-    else:
-      tmp = cnt.count()
+    tmp = self.getCount(cnt)
     if self.eventList.has_key(tmp):
       print 'adding event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp].append(event)
@@ -179,7 +128,14 @@ class MidiScheduler(object):
     try:
       while self.loop():
         time.sleep(0.3)
-    
+      
     except:
       print("error:", sys.exc_info()[0])
       self.fire(self.togStartStop)
+      
+    
+  def getCount(self,tv):
+    nm = tv.__class__.__name__
+    if nm == 'int':
+      return tv
+    return tv.count()
