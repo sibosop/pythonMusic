@@ -3,6 +3,7 @@ import mido
 
 
 
+
     
 class EventList(object):
   def __init__(self,list):
@@ -17,7 +18,7 @@ class EventList(object):
       print "first is True"
       self.first = False
       self.base = ms.count
-      offset = ms.getCount(self.list[0][0])
+      offset = getVal(self.list[0][0])
       print "offset:"+str(offset)+" base:"+str(self.base)
       if (self.base+offset) != ms.count:
         ms.addEvent(self.base+offset,self)

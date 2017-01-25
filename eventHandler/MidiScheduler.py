@@ -3,6 +3,7 @@ import mido
 import Singleton
 from threading import Thread,Lock
 from CCEvent import CCEvent as cc
+from EvUtil import getVal
 import sys
 
 import time
@@ -136,6 +137,7 @@ class MidiScheduler(object):
     
   def getCount(self,tv):
     nm = tv.__class__.__name__
+    print "nm:"+nm
     if nm == 'int':
       return tv
     return tv.count()
