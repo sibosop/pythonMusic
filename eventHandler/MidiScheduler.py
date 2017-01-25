@@ -2,7 +2,7 @@
 import mido
 import Singleton
 from threading import Thread,Lock
-from Event import CCEvent as cc
+from CCEvent import CCEvent as cc
 import sys
 
 import time
@@ -16,7 +16,7 @@ class MidiScheduler(object):
   __metaclass__ = Singleton.Singleton
   
   
-  def __init__(self,port):
+  def __init__(self,inPort,outPort):
     mido.set_backend('mido.backends.rtmidi')
     self.on=127
     self.off=0
@@ -26,8 +26,8 @@ class MidiScheduler(object):
     self.reset=cc(126,self.on)
     
     self.measureSize = 96
-    self.midiIn = mido.open_input(port,callback=self.eventHandler)
-    self.midiOut = mido.open_output(port)
+    self.midiIn = mido.open_input(inPort,callback=self.eventHandler)
+    self.midiOut = mido.open_output(outPort)
     self.running=False 
     self.first=False
     self.ignoreFlag = False
@@ -101,6 +101,7 @@ class MidiScheduler(object):
     ev.fire(self)
 
   def eventHandler(self,msg):
+    #print str(msg)
     self.messages[msg.type](msg)
     
   def loop(self):
@@ -123,7 +124,6 @@ class MidiScheduler(object):
       
   def run(self):
     self.fire(self.reset)
-    self.fire(self.muteAll)
     self.fire(self.togStartStop)
     try:
       while self.loop():

@@ -3,10 +3,11 @@
 from MidiScheduler import MidiScheduler 
 from Measure import Measure as Me
 from Loop import Loop as Lo
-from Event import CCEvent as cc, EventList as el
+from CCEvent import CCEvent as cc
+from EventList import EventList as el
 import sys
 
-ms = MidiScheduler('IAC Driver IAC Bus 1')
+ms = MidiScheduler(inPort='IAC Driver IAC Bus 2',outPort='IAC Driver IAC Bus 1')
 off = ms.off
 on = ms.on
 
@@ -85,7 +86,7 @@ ms.addEvent(Lo("53:4:1:0"),cc(Tr.pluckb,on))
 ms.addEvent(Lo("54:3:2:0"),cc(Tr.bd1Stretch,on))
 
 ms.addEvent(Lo("55:1:1:1"),ms.togStartStop)
-
+ms.fire(ms.muteAll)
 ms.run()  
 
 
