@@ -2,40 +2,35 @@
 import MidiScheduler
 import sys
 
-class Trigger(object):
-  def __init__(self,spec):
-    self.loop = 0
-    self.measure = 0
-    self.beat = 0
-    self.tick = 0
-    if spec.__class__.__name__ == 'int':
-      self.tick = spec
+
+def Trigger(spec):
+  loop = 0
+  measure = 0
+  beat = 0
+  tick = 0
+  ms = MidiScheduler.measureSize
+  ls = MidiScheduler.loopSize
+
+  #print "Trigger spec:"+spec
+  vals = spec.split(":")
+  try:
+    l = len(vals)
+    #print "Trigger len:" + str(l) + " vals:" + str(vals)
+    if l == 1:
+      tick = int(vals[0])
+    elif l == 3:
+      measure = int(vals[0])-1
+      beat = int(vals[1])-1
+      tick = int(vals[2])
+    elif l == 4:
+      loop = int(vals[0])-1
+      measure = int(vals[1])-1
+      beat = int(vals[2])-1
+      tick = int(vals[3])
     else:
-      #print "Trigger spec:"+spec
-      vals = spec.split(":")
-      try:
-        l = len(vals)
-        #print "Trigger len:" + str(l) + " vals:" + str(vals)
-        if l == 1:
-          self.tick = int(vals[0])
-        elif l == 3:
-          self.measure = int(vals[0])-1
-          self.beat = int(vals[1])-1
-          self.tick = int(vals[2])
-        elif l == 4:
-          self.loop = int(vals[0])-1
-          self.measure = int(vals[1])-1
-          self.beat = int(vals[2])-1
-          self.tick = int(vals[3])
-        else:
-          raise Exception("Trigger bad parameter:"+spec)
-      except:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise Exception(sys.exc_info()[0])
-    #print "trigger init done"
-    
-  def v(self):
-    ms = MidiScheduler.measureSize
-    ls = MidiScheduler.loopSize
-    return (self.loop*(ms*ls))+(self.measure*ms)+(self.beat*24)+self.tick
+      raise Exception("Trigger bad parameter:"+spec)
+  except:
+    print("Unexpected error:", sys.exc_info()[0])
+    raise Exception(sys.exc_info()[0])
+  return (loop*(ms*ls))+(measure*ms)+(beat*24)+tick
       

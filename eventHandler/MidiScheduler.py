@@ -113,7 +113,7 @@ class MidiScheduler(object):
     return True
         
   def addEvent(self,cnt,event):
-    tmp = cnt.v()
+    tmp = cnt
     if self.eventList.has_key(tmp):
       print 'adding event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp].append(event)

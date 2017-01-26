@@ -3,8 +3,7 @@ import mido
 import time
 import random
 from MidiScheduler import MidiScheduler 
-from Measure import Measure as Me
-from Loop import Loop as Lo
+from Trigger import Trigger as Tg
 from CCEvent import CCEvent as cc
 from Note import Note as nt
 from EventList import EventList as el
@@ -24,7 +23,7 @@ noteSeq = newSeq[:]
   
 note=rp(reps=100,len=24,event=nt(note=lambda: random.choice(noteSeq),vel=lambda: random.randint(1,127),len=lambda: random.randint(1,48),chan=lambda: random.randint(0,1)))
 
-ms.addEvent(Me("1:1:0"),note)
+ms.addEvent(Tg("1:1:0"),note)
 
-ms.addEvent(Me("20:1:1"),ms.togStartStop)
+ms.addEvent(Tg("20:1:1"),ms.togStartStop)
 ms.run()

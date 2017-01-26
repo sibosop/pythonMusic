@@ -15,7 +15,7 @@ class Repeat(object):
   def fire(self,ms):
     print "repeat fire"
     count = ms.count
-    len = ms.getCount(self.len)
+    len = self.len
     if self.rep == 0:
       self.calcReps = getVal(self.reps)
       if self.calcReps < 1:
