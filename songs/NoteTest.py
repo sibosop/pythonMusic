@@ -30,5 +30,5 @@ chord=rp(reps=100,len=lambda: random.randint(1,8)*24,event=ch(chord=rch,vel=lamb
 ms.addEvent(Tg("1:1:0"),chord)
 
 
-ms.addEvent(Tg("20:1:1"),ms.togStartStop)
+#ms.addEvent(Tg("20:1:1"),ms.togStartStop)
 ms.run()

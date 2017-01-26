@@ -50,7 +50,8 @@ class MidiScheduler(object):
       print "clock while not running"
     if self.ignoreFlag is False and self.eventList.has_key(self.count):
       for e in self.eventList[self.count]:
-        e.fire(self) 
+        e.fire(self)
+      del self.eventList[self.count] 
     self.ignoreFlag = False
     self.count += 1
     #self.running = True
@@ -83,8 +84,8 @@ class MidiScheduler(object):
     
   def songpos(self,msg):
     print 'songpos:'+str(msg)
-    if not self.running:
-      self.count = msg.pos * 6
+    #if not self.running:
+     # self.count = msg.pos * 6
     print "count:" + str(self.count)
   
   def control_change(self,msg):

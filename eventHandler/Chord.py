@@ -12,9 +12,11 @@ class Chord(object):
     
   def fire(self,ms):
     playList = []
-    ch = self.chord
-    if ch.__class__.__name__ != 'list':
-      ch = self.chord()
+    ch=[]
+    if self.chord.__class__.__name__ == 'list':
+      ch = self.chord[:]
+    else:
+      ch = self.chord()[:]
     for x in ch:
       playList.append(getVal(x))
     playVel = getVal(self.vel)
@@ -22,6 +24,7 @@ class Chord(object):
     playLen = getVal(self.len)
     for x in playList:
       msg=mido.Message('note_on',note=x,velocity=playVel,channel=playChan)
+      print str(msg)
       ms.midiOut.send(msg)
     if playVel != 0:
       off=ms.count+playLen
