@@ -24,6 +24,7 @@ class MidiScheduler(object):
     
     self.togStartStop = cc(0,self.on)
     self.muteAll = cc(127,self.on)
+    self.notesOff = cc(123,self.off)
     self.reset=cc(126,self.on)
     self.midiIn = mido.open_input(inPort,callback=self.eventHandler)
     self.midiOut = mido.open_output(outPort)
@@ -131,6 +132,8 @@ class MidiScheduler(object):
     except:
       print("error:", sys.exc_info()[0])
       self.fire(self.togStartStop)
+    
+    self.fire(self.notesOff)
       
     
   
