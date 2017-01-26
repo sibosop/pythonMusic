@@ -25,8 +25,6 @@ class MidiScheduler(object):
     self.togStartStop = cc(0,self.on)
     self.muteAll = cc(127,self.on)
     self.reset=cc(126,self.on)
-    
-    self.measureSize = 96
     self.midiIn = mido.open_input(inPort,callback=self.eventHandler)
     self.midiOut = mido.open_output(outPort)
     self.running=False 
@@ -115,7 +113,7 @@ class MidiScheduler(object):
     return True
         
   def addEvent(self,cnt,event):
-    tmp = self.getCount(cnt)
+    tmp = cnt.v()
     if self.eventList.has_key(tmp):
       print 'adding event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp].append(event)
@@ -135,9 +133,4 @@ class MidiScheduler(object):
       self.fire(self.togStartStop)
       
     
-  def getCount(self,tv):
-    nm = tv.__class__.__name__
-    print "nm:"+nm
-    if nm == 'int':
-      return tv
-    return tv.count()
+  

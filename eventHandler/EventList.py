@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import mido
-
+from Trigger import Trigger as tg
 
 
 
@@ -18,10 +18,10 @@ class EventList(object):
       print "first is True"
       self.first = False
       self.base = ms.count
-      offset = getVal(self.list[0][0])
+      offset = self.list[0][0].v()
       print "offset:"+str(offset)+" base:"+str(self.base)
       if (self.base+offset) != ms.count:
-        ms.addEvent(self.base+offset,self)
+        ms.addEvent(tg(self.base+offset),self)
         return
     print "fire"
     ms.fire(self.list[self.iter][1])
@@ -31,5 +31,6 @@ class EventList(object):
       self.iter = 0
       self.first = True
     else:
-      ms.addEvent(self.list[self.iter][0].count()+self.base,self)
+      #print "trigger event:"+str(self.list[self.iter][0])+str(self.list[self.iter][0].v())
+      ms.addEvent(tg(self.list[self.iter][0].v()+self.base),self)
       
