@@ -10,18 +10,19 @@ import time
 import Loop
 import Measure
 
-measureSize = 96
-loopSize = 4
+measureSize=96
+loopSize=4
+loopBeats=(loopSize*measureSize)
 
 class MidiScheduler(object):
   __metaclass__ = Singleton.Singleton
   
   
-  def __init__(self,inPort,outPort):
+  def __init__(self,inPort,outPort,loopSize=4,measureSize=96):
     mido.set_backend('mido.backends.rtmidi')
     self.on=127
     self.off=0
-    
+    self.last = time.time()
     self.togStartStop = cc(0,self.on)
     self.muteAll = cc(127,self.on)
     self.notesOff = cc(123,self.off)
@@ -45,13 +46,18 @@ class MidiScheduler(object):
     
     self.eventList = {}
     
+  def bump(self):
+    if self.eventList.has_key(self.count):
+      for e in self.eventList[self.count]:
+        e.fire(self)
+      del self.eventList[self.count]
+  
+    
   def clock(self,msg):
     if self.running == False:
       print "clock while not running"
-    if self.ignoreFlag is False and self.eventList.has_key(self.count):
-      for e in self.eventList[self.count]:
-        e.fire(self)
-      del self.eventList[self.count] 
+    if self.ignoreFlag is False:
+      self.bump()
     self.ignoreFlag = False
     self.count += 1
     #self.running = True
@@ -61,31 +67,48 @@ class MidiScheduler(object):
   def stop(self,msg):
     print 'stop:'+str(msg)
     print "count:" + str(self.count)
+    #print time.time()
+    
     self.running = False
-    self.ignoreFlag = True
-    self.count = self.count - 1
+    
+  def startLoop(self):
+    mod = self.count % loopBeats
+    print 'loop start count:'+str(self.count)+" mod:"+str(mod)
+    if mod != 0:
+      if ( mod < 5 ):
+        self.ignoreFlag = True
+        self.count = self.count - 1
+      else:
+        diff = (loopBeats - mod)
+        while diff:
+          self.count += 1
+          self.bump()
+          diff -= 1
+      print "new count:"+ str(self.count)
   
   def start(self,msg):
-    print 'start:'+str(msg)
+    self.startLoop()
     self.running = True
+    #print time.time()
+    #print time.time() - self.last
+    self.last = time.time()
     if self.realStart:
       print "doing real start"
       self.realStart = False
       self.count = 0
-    print "count:" + str(self.count)
     
   def cont(self,msg):
-    print 'cont:'+str(msg)
-    print "count:" + str(self.count)
+    self.startLoop()
+    self.running = True
     if self.realStart:
       print "real continue"
       self.realStart = False
-    self.running = True
+    
     
   def songpos(self,msg):
     print 'songpos:'+str(msg)
     #if not self.running:
-     # self.count = msg.pos * 6
+    # self.count = msg.pos * 6
     print "count:" + str(self.count)
   
   def control_change(self,msg):
@@ -117,10 +140,10 @@ class MidiScheduler(object):
   def addEvent(self,cnt,event):
     tmp = cnt
     if self.eventList.has_key(tmp):
-      print 'adding event ' + str(event) + ' at ' + str(tmp)
+      #print 'adding event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp].append(event)
     else:
-      print 'creating event ' + str(event) + ' at ' + str(tmp)
+      #print 'creating event ' + str(event) + ' at ' + str(tmp)
       self.eventList[tmp] = [event]
       
   def run(self):
@@ -128,13 +151,14 @@ class MidiScheduler(object):
     self.fire(self.togStartStop)
     try:
       while self.loop():
-        time.sleep(0.3)
+        time.sleep(0.5)
       
     except:
       print("error:", sys.exc_info()[0])
       self.fire(self.togStartStop)
-    
-    self.fire(self.notesOff)
+    for x in range (0,15):
+      self.notesOff.chan=x
+      self.fire(self.notesOff)
       
     
   

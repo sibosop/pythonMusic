@@ -15,7 +15,7 @@ class Note(object):
     playChan = getVal(self.chan)
     playLen = getVal(self.len)
     msg=mido.Message('note_on',note=playNote,velocity=playVel,channel=playChan)
-    print 'count:'+str(ms.count)+' '+str(msg)+' '
+    #print 'count:'+str(ms.count)+' '+str(msg)+' '
     ms.midiOut.send(msg)
     if playVel != 0:
       off=ms.count+playLen

@@ -23,10 +23,24 @@ for x in noteSeq:
   bassSeq.append(x-12)
 
 rch = lambda: chooseUnique(noteSeq,4)
-note=rp(reps=200,len=24,event=nt(note=lambda: random.choice(bassSeq),vel=lambda: random.randint(1,127),len=24,chan=1))
+noteChan=2
+note=rp(reps=200,len=Tg('5:1:00'),event=el([
+            [Tg('1:1:0'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('1:1:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('1:2:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('1:4:0'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('1:4:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('2:1:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('2:3:0'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('2:3:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('3:1:0'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('3:2:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('3:4:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)],
+            [Tg('4:2:12'),nt(note=72,vel=lambda: random.randint(1,127),len=24,chan=noteChan)]
+            ]))
 chord=rp(reps=100,len=lambda: random.randint(1,8)*24,event=ch(chord=rch,vel=lambda: random.randint(1,127),len=lambda: random.randint(1,48),chan=0))
-
-#ms.addEvent(Tg("1:1:0"),note)
+#len=lambda: random.randint(1,8)*24
+ms.addEvent(Tg("1:1:0"),note)
 ms.addEvent(Tg("1:1:0"),chord)
 
 

@@ -24,7 +24,7 @@ class Chord(object):
     playLen = getVal(self.len)
     for x in playList:
       msg=mido.Message('note_on',note=x,velocity=playVel,channel=playChan)
-      print str(msg)
+      #print str(msg)
       ms.midiOut.send(msg)
     if playVel != 0:
       off=ms.count+playLen
