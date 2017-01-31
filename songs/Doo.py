@@ -1,9 +1,10 @@
 #!/usr/bin/python
-
+import random
 from MidiScheduler import MidiScheduler 
 from Trigger import Trigger as tg
 from CCEvent import CCEvent as cc
 from EventList import EventList as el
+from SpeakIt import SpeakIt as sp
 import sys
 
 ms = MidiScheduler(inPort='IAC Driver IAC Bus 2',outPort='IAC Driver IAC Bus 1')
@@ -11,7 +12,7 @@ off = ms.off
 on = ms.on
 
 class Tr(object):
-  unused,bd3,snrd,midd,pink,bd1,clp,pluckb,tink,bd1Stretch,revBd3,pluckwah,bell,pluckbell,pluckbell1,pluckbell2,pluckbell3,beattone1,beattone2=range(19)
+  unused,bd3,snrd,midd,pink,bd1,clp,pluckb,tink,bd1Stretch,revBd3,pluckwah,bell,pluckbell,pluckbell1,pluckbell2,pluckbell3,beattone1,beattone2,speak=range(20)
   
 revSound=el([[tg("1:1:1:0"),cc(Tr.revBd3,off)],[tg("2:1:1:0"),cc(Tr.revBd3,on)]])
 
@@ -40,13 +41,17 @@ pluckbell=el([[tg("1:4:1:0"),cc(Tr.pluckbell,off)],
   [tg("5:4:1:0"),cc(Tr.pluckbell,on)],
   [tg("6:1:1:0"),cc(Tr.pluckbell3,on)]])
 
+ms.addEvent(tg("1:1:1:0"),cc(Tr.speak,off))
 
 ms.addEvent(tg("1:4:1:0"),cc(Tr.pink,off))
-
+ms.addEvent(tg("2:3:4:0"),sp(phrase="effl",pan=lambda: random.randint(0,127),effect=lambda: random.randint(0,50)))
 ms.addEvent(tg("3:1:1:0"),cc(Tr.bd1Stretch,off))
+ms.addEvent(tg("3:3:4:0"),sp(phrase="emfl",pan=lambda:random.randint(0,127),effect=lambda: random.randint(0,50)))
+ms.addEvent(tg("4:3:4:0"),sp(phrase="hffl",pan=lambda:random.randint(0,127),effect=lambda: random.randint(0,50)))
 
 ms.addEvent(tg("5:1:1:0"),revSound)
 ms.addEvent(tg("5:4:1:0"),cc(Tr.pluckb,off))
+ms.addEvent(tg("6:3:4:0"),sp(phrase="fffl",pan=lambda:random.randint(0,127)))
 
 ms.addEvent(tg("7:4:1:0"),cc(Tr.bd1,off))
 ms.addEvent(tg("8:1:1:0"),cc(Tr.clp,off))

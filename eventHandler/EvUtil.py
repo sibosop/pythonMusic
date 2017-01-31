@@ -3,10 +3,18 @@ import random
 
 def getVal(inVal):
   rval = 0
-  if inVal.__class__.__name__ == 'int':
-    rval = inVal
-  else:
+  try:
     rval = inVal()
+    #print "func"
+  except:
+    rval = inVal
+    #print "native type"
+    
+  
+  #if inVal.__class__.__name__ == 'int' or inVal.__class__.__name__ == 'str':
+    #rval = inVal
+  #else:
+    #rval = inVal()
   return rval
   
 def chooseUnique(list,count):
@@ -16,4 +24,4 @@ def chooseUnique(list,count):
     v = tmp[random.randint(0,len(tmp)-1)]
     rval.append(v)
     tmp.remove(v)
-  return rval
+  return #
